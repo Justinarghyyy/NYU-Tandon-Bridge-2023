@@ -5,59 +5,43 @@ using namespace std ;
 class Money
 {
 private:
-    long all_cents, dollars ;
-    int cents ;
+    long all_cents;
  
 public: 
     friend Money operator +(const Money& checkAmount1, const Money& checkAmount2) {
         Money sum;
-        sum.dollars = checkAmount1.dollars + checkAmount2.dollars;
-        sum.cents = checkAmount1.cents + checkAmount2.cents;
-        if (sum.cents >= 100) {
-            sum.dollars++;
-            sum.cents -= 100;
-        }
+        sum.all_cents = checkAmount1.all_cents + checkAmount2.all_cents;
         return sum;
     };
     friend Money operator -(const Money& checkAmount1, const Money& checkAmount2) {
         Money minus;
-        minus.dollars = checkAmount1.dollars - checkAmount2.dollars;
-        minus.cents = checkAmount1.cents - checkAmount2.cents;
-        if (minus.cents < 0 ) {
-            minus.dollars--;
-            minus.cents += 100;
-        }
-    return minus;
-    } ;
-    friend bool operator ==(const Money& amount1, const Money& amount2) {
-        return (amount1.all_cents == amount2.all_cents);
+        minus.all_cents = checkAmount1.all_cents - checkAmount2.all_cents;
+        return minus;
     } ;
     friend istream& operator >>(istream& ins, Money& checkAmount) {
-        char dollarSign;
-        ins >> dollarSign >> checkAmount.dollars >> checkAmount.cents;
+        char period;
+        long dollars; 
+        int cents ;
+        ins >> dollars >> period >> cents;
+        checkAmount.all_cents = dollars * 100 + cents;
         return ins;
     } ;
     friend ostream& operator <<(ostream& outs, const Money& checkAmount) {
-        outs << "$" << checkAmount.dollars << "." << checkAmount.cents;
+        outs << "$" << checkAmount.getDollars() << "." << checkAmount.getCents();
         return outs;
     } ;
-    Money(long dollars, int cents){
-        this->dollars = dollars;
-        this->cents = cents;
+    Money(long dollars = 0 , int cents = 0){
+        this->all_cents = dollars * 100 + cents;
     };
-    Money(long dollars){
-        this->dollars = dollars;
-    };
-    Money( ){
-        this->dollars = 0;
-        this->cents = 0;
-    };
-double get_value( ) const ;
+
+double get_value( ) const {
+    return all_cents / 100.0;
+};
 long getDollars() const {
-    return dollars;
+    return all_cents / 100;
 } ;
 int getCents() const {
-    return cents;
+    return all_cents % 100;
 } ;
 }; 
 
@@ -67,64 +51,98 @@ public:
     int checkNumber ; 
     Money checkAmount ;
     bool checkCash ;
+
+    int getCheckNumber() const {
+    return checkNumber;
+    };
+    Money getCheckAmount() const {
+    return checkAmount;
+    };
+    bool getCheckCash() const {
+    return checkCash;
+    };
 };
 
-Money sortCheck() ;
-Money computeDeposit() ;
+void calCheck(Money& totalCashed, Money& totalUncashed) ;
+Money calDeposit() ;
+void clearCheck (int status) ;
+vector<Check> checkbook ;
 int main(){
-    Money totalCashed, totalDeposit ;
-    totalCashed = sortCheck() ;
-    totalDeposit = computeDeposit() ;
+    Money totalCashed(0,0) ;
+    Money totalUncashed(0,0) ;
+    Money totalDeposit(0,0);
+    calCheck( totalCashed, totalUncashed) ;
+    cout << "The sum of the cashed check is: " << "\n" << totalCashed << endl ;
+    cout << "The sum of the uncashed check is: " << "\n" << totalUncashed << endl ;
+    totalDeposit = calDeposit() ;
+    cout << "The sum of the deposits is: " << "\n" << totalDeposit << endl ;
 
     Money newBalance, oldBalance, newBankBalance, difference ;
-    cout << "Enter the old account balance: " ;
+    cout << "Enter the prior account balance: " ;
     cin >> oldBalance ;
-    cout << "Enter the new account balance: " ;
-    cin >> newBankBalance ;
+    cout << "Enter the new balance amount according to the account holder: " ;
+    cin >> newBalance ;
 
-    newBalance = oldBalance + totalDeposit - totalCashed ;
+    newBankBalance = oldBalance + totalDeposit - totalCashed ;
     difference = newBankBalance - newBalance ;
 
-    cout << "Total of the checks cashed is: " << totalCashed << endl ;
-    cout << "Total of the deposits is: " << totalDeposit << endl ;
-    cout << "The new balance is: " << newBalance << endl ;
-    cout << "The difference is: " << difference << endl ;
+    cout << "The balance according to the bank which includes only cleared checks is: " << newBankBalance << endl ;
+    cout << "The difference between the account holders balance of " << newBalance << " and bank balance of " << newBankBalance << " is: " << difference << endl ;
     
+    cout << endl ;
+    cout << "The cashed checks are: " << endl ;
+    clearCheck(1) ;
+    cout << "The uncashed checks are: " << endl ;
+    clearCheck(0) ;
     return 0 ;
     
 }
 
-Money sortCheck(){
-    vector<Check> checkbook ;
+void calCheck(Money& totalCashed, Money &totalUncashed){
     int checkNumber;
-    Money checkAmount, totalCashed;
+    Money checkAmount ;
     bool checkCash, end;
     end = false ;
+    cout << "Enter check number, amount on check [exclude the dollar sign] and whether the check has already been cashed? If yes, type 1, if no, type 0 " << endl;
     while (end == false){
-        cout << "Enter check number (enter 0 if you haved finished): " ;
-        cin >> checkNumber ;
-        cout << "Enter check amount: " ;
-        cin >> checkAmount ;
-        cout << "Is the check already cashed? If yes, type 1, if no, type 0: " ;
-        cin >> checkCash ;
-        totalCashed = totalCashed + checkAmount ;
-
-        if ( checkNumber == 0 ){
+        cin >> checkNumber >> checkAmount >> checkCash ;
+        if (checkCash != 0){
+            totalCashed = totalCashed + checkAmount ;
+        }
+        else {
+            totalUncashed = totalUncashed + checkAmount ;
+        }
+        Check newCheck = {checkNumber, checkAmount, checkCash} ;
+        checkbook.push_back(newCheck) ;
+        if (checkNumber == 0){
             end = true ;
         }
     }
-    return totalCashed ;
+
 }
 
-Money computeDeposit(){
+Money calDeposit(){
     vector <Money> deposit;
-    Money n ;
+    double n ;
     Money totalDeposit ;
     cout << "Enter amount of deposites, end with 0 : " ;
-    while (true){
-        cin >> n ;
-        deposit.push_back(n) ;
-        totalDeposit = totalDeposit + n ;
+    while ( cin >> n ){
+        if ( n == 0){
+            break ;
+        }
+        else {
+            deposit.push_back(n) ;
+            totalDeposit = totalDeposit + n ;
+        }
     }
     return totalDeposit ;
+}
+
+void clearCheck (int status){
+    int i = 0 ;
+    for ( i = 0 ; i < checkbook.size()-1 ; i ++ ){
+        if (checkbook[i].getCheckCash() == status){
+            cout << "check number: " << checkbook[i].getCheckNumber() << " with amount: " << checkbook[i].getCheckAmount() << endl ;
+        }
+    }
 }
