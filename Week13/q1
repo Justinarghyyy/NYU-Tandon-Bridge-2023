@@ -34,7 +34,7 @@ class Doodlebug : public Organism
 {
     int survive ;
 public:
-    Doodlebug(int id, int location, int count, char status, int survive ) : Organism() {}
+    Doodlebug(int id, int location, int count, char status, int survive ) : Organism(), survive(survive) {}
     void move() ;
     void setLocation( int newLocation ) { Organism::setLocation(newLocation); }
     int getSurvive() const { return survive; }
