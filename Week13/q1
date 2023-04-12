@@ -1,0 +1,450 @@
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+const int doodlebugNumber = 5 ;
+const int grid = 20 ;
+const int gridSize = 400 ;
+const int antNumber = 100 ;
+const int doodleNumber = 5 ;
+using namespace std ;
+
+class Organism
+{
+    int ID ;
+    int location;
+    int count ;
+    char status ;
+public:
+    Organism(int id = 1, int loc = 1, int c = 1, char s = 'm') : ID(id), location(loc), count(c), status(s) {}
+    int getLocation() const { return location; }
+    int setLocation( int newLocation ){ location = newLocation; } ;
+    int getCount() const { return count; }
+    int setCount( int newCount ){ count = &newCount} ;
+    virtual void move() const = 0 ;
+};
+
+class Doodlebug : public Organism
+{
+    int survive ;
+public:
+    Doodlebug(int id, int loc, int days, char t, bool moved) : Organism(id, loc, days, t, moved) {}
+    void move() ;
+    int getLocation() const { return location; }
+    void setLocation( int newLocation ) ;
+    char getStatus() const { return status; }
+    void setStatus( char newStatus ) ;
+    int getSurvive() const { return survive; }
+    void setSurvive( int newSurvive ) ;
+    Doodlebug& operator = (const Organism & org) ;
+};
+
+void Doodlebug ::move(){
+    int newDoodleNumber = doodleNumber ;
+    for (int i = 0 ; i < newDoodleNumber ; i++){
+        int bugLocation = getLocation() ;
+        if (getStatus() != 'd') {   /* 'd' for dead */
+            if (getCount() == 3 ){
+                setStatus ('d');
+            }
+            else {
+                if ( getCount() != 3 && getSurvive() == 8 ){
+                    setSurvive(0) ;
+                    bool findLocation = false ;
+                    int newBugLocation ;
+                    while (findLocation == false){
+                        bool arr[4] = {};
+                        int rand = randLocation (4) ; /* 1 for up, 2 for down, 3 for left, 4 for right */
+                        switch(rand){
+                            case 1 :
+                                if ( bugLocation > grid ){
+                                    newBugLocation = bugLocation - grid ;
+                                    organisms.push_back( new Doodlebug( newDoodleNumber, location, 0, 'm', 0) );
+                                    locationList[newBugLocation] = 'X' ;
+                                    findLocation = true ;
+                                    newDoodleNumber ++ ;
+                                }
+                                else{
+                                    arr[0] = false ;
+                                }
+                                break ;
+                            case 2 :
+                                if ( bugLocation < gridSize - grid ){
+                                    newBugLocation = bugLocation + grid ;
+                                    organisms.push_back( new Doodlebug( newDoodleNumber, location, 0, 'm', 0) );
+                                    locationList[newBugLocation] = 'X' ;
+                                    findLocation = true ;
+                                    newDoodleNumber ++ ;
+                                }
+                                else{
+                                    arr[1] = false ;
+                                }
+                                break ;
+                            case 3 :
+                                if (bugLocation % grid != 0 ){
+                                    newBugLocation = bugLocation - 1 ;
+                                    organisms.push_back( new Doodlebug( newDoodleNumber, location, 0, 'm', 0) );
+                                    locationList[newBugLocation] = 'X' ;
+                                    findLocation = true ;
+                                    newDoodleNumber ++ ;
+                                }
+                                else{
+                                    arr[0] = false ;
+                                    }
+                                break ;
+                            case 4 :
+                                if (bugLocation % grid ==  9 ){
+                                    newBugLocation = bugLocation + 1 ;
+                                    organisms.push_back( new Doodlebug( newDoodleNumber, location, 0, 'm', 0) );
+                                    locationList[newBugLocation] = 'X' ;
+                                    findLocation = true ;
+                                    newDoodleNumber ++ ;
+                                }
+                                else{
+                                    arr[0] = false ;
+                                }
+                                break ;
+                        }
+                        if ( arr[0] == false && arr[1] == false && arr[2] == false && arr[3] == false ){
+                            findLocation = true ;
+                        }
+                    }
+                }
+                if (bugLocation % 20 != 0 && locationList[bugLocation-1] = 'o'){
+                    for (int n = 0; n < gridSize; n++) {
+                        Organism* org = organisms[bugLocation];
+                        int id = org->getID();
+                        int location = org->getLocation(); 
+                        if (getLocation() == bugLocation-1 ){
+                            setStatus('d');
+                            break;
+                        }
+                    }
+                    setLocation( bugLocation - 1 ) ;
+                    locationList[bugLocation] = '-' ;
+                    locationList[bugLocation-1] = 'X' ;
+                    setCount( 0 ) ;
+                }
+                else if (bugLocation > grid - 1 && locationList[bugLocation-grid] == 'o'){
+                    for (int n = 0; n < gridSize; n++) {
+                        Organism* org = organisms[n];
+                        int id = org->getID();
+                        int location = org->getLocation(); 
+                        if (getLocation() == bugLocation - 20 ){
+                            setStatus('d');
+                            break;
+                        }
+                    }
+                    setLocation( bugLocation - 20 ) ;
+                    locationList[bugLocation] = '-' ;
+                    locationList[bugLocation-20] = 'X' ;
+                    setCount( 0 ) ;
+                }
+                else if (bugLocation % grid bugLocation != 9 && locationList[bugLocation+1] == 'o'){
+                    for (int n = 0; n < gridSize ; n++) {
+                        Organism* org = organisms[n];
+                        int id = org->getID();
+                        int location = org->getLocation(); 
+                        if (getLocation() == bugLocation + 1 ){
+                            setStatus('d');
+                            break;
+                        }
+                    }
+                    setLocation( bugLocation + 1 ) ;
+                    locationList[bugLocation] = '-' ;
+                    locationList[bugLocation+1] = 'X' ;
+                    setCount( 0 ) ;
+                }
+                else if (bugLocation < gridSize - grid && locationList[bugLocation+20] == 'o'){
+                    for (int n = 0; n < gridSize ; n++) {
+                        Organism* org = organisms[n];
+                        int id = org->getID();
+                        int location = org->getLocation(); 
+                        if (getLocation() == bugLocation + 20 ){
+                            setStatus('d');
+                            break;
+                        }
+                    }
+                    setLocation( bugLocation + 20 ) ;
+                    locationList[bugLocation] = '-' ;
+                    locationList[bugLocation+20] = 'X' ;
+                    setCount( 0 ) ;
+                }
+                else if (locationList[bugLocation-1] != 'o' && locationList[bugLocation-grid] != 'o' && locationList[bugLocation+1] != 'o' && ocationList[bugLocation+grid] != 'o'){
+                    bool arr[4] = {};
+                    bool findLocation = false ;
+                    while (findLocation == false){
+                        int rand = randLocation (4) ; /* 1 for up, 2 for down, 3 for left, 4 for right */
+                        switch(rand){
+                            case 1 :
+                                if (bugLocation > grid -1 && locationList[bugLocation-grid] != 'X'){
+                                    setLocation( bugLocation - 20 ) ;
+                                    int newCount = getCount() + 1 ;
+                                    setCount ( newCount ) ;
+                                    locationList[bugLocation] = '-' ;
+                                    locationList[bugLocation-20] = 'X' ;
+                                    findLocation = true ;
+                                }
+                                else{
+                                    arr[0] = false ;
+                                }
+                                break ;
+                            case 2 :
+                                if (bugLocation < gridSize - grid && ocationList[bugLocation+grid] != 'X'){
+                                    setLocation( bugLocation + grid ) ;
+                                    int newCount = getCount() + 1 ;
+                                    setCount ( newCount ) ;
+                                    locationList[bugLocation] = '-' ;
+                                    locationList[bugLocation+20] = 'X' ;
+                                    findLocation = true ;
+                                }
+                                else {
+                                    arr[1] = false ;
+                                }
+                                break ;
+                            case 3 :
+                                if (bugLocation % grid != 0 && locationList[bugLocation-1] != 'X' ){
+                                    setLocation( bugLocation - 1 ) ;
+                                    int newCount = getCount() + 1 ;
+                                    setCount ( newCount ) ;
+                                    locationList[bugLocation] = '-' ;
+                                    locationList[bugLocation-1] = 'X' ;
+                                    findLocation = true ;
+                                }
+                                else {
+                                    arr[2] = false ;
+                                }
+                                break ;
+                            case 4 :
+                                if (bugLocation % grid != 9 && locationList[bugLocation+1] != 'X' ){
+                                    setLocation( bugLocation + 1 ) ;
+                                    int newCount = getCount() + 1 ;
+                                    setCount ( newCount ) ;
+                                    locationList[bugLocation] = '-' ;
+                                    locationList[bugLocation+1] = 'X' ;
+                                    findLocation = false ;
+                                }
+                                else {
+                                    arr[3] = false ;
+                                }
+                                break ;
+                        }
+                        if ( arr[0] == false && arr[1] == false && arr[2] == false && arr[3] == false ){
+                            findLocation = true ;
+                        }
+                    }
+                }
+                newSurvive = getSurvive() + 1;
+                setSurvive (newSurvive) ;
+            }   
+        }
+    }
+}
+
+class Ant : public Organism
+{
+public:
+    Ant() : Organisms(1000){}
+    void move() {}
+    int getLocation() const { return location; }
+    void setLocation( int newLocation ) ;
+    char getStatus() const { return status; }
+    void setStatus( int newStatus ) ;
+    Ant& operator = (const Species &) ;
+};
+
+void Ant ::move(){
+    int newAntNumber = antNumber ;
+    for (int i = 0 ; i < newAntNumber ; i++){
+        int antLocation = getLocation() ;
+        if (getStatus() != 'd') {   /* 'd' for dead */
+            if (getCount() == 3 ){
+                while (findLocation == false){
+                    bool arr[4] = {};
+                    int rand = randLocation (4) ; /* 1 for up, 2 for down, 3 for left, 4 for right */
+                    switch(rand){
+                        case 1 :
+                            if ( antLocation > grid && locationList(antLocation - grid)){
+                                int newAntLocation = antLocation - grid ;
+                                organisms.push_back( new Ant( newAntNumber, location, 0, 'm' ) );
+                                locationList[newAntLocation] = 'o' ;
+                                findLocation = true ;
+                                newAntNumber ++ ;
+                            }
+                            else{
+                                arr[0] = false ;
+                            }
+                                break ;
+                        case 2 :
+                            if ( antLocation < gridSize - grid ){
+                                newAntLocation = antLocation + grid ;
+                                organisms.push_back( new Ant( newAntNumber, location, 0, 'm' ) );
+                                locationList[newAntLocation] = 'o' ;
+                                findLocation = true ;
+                                newAntNumber ++ ;
+                            }
+                            else{
+                                arr[1] = false ;
+                            }
+                            break ;
+                        case 3 :
+                            if (antLocation % grid != 0 ){
+                                newAntLocation = antLocation - 1 ;
+                                organisms.push_back( new Ant( newAntNumber, location, 0, 'm' ) );
+                                locationList[newAntLocation] = 'o' ;
+                                findLocation = true ;
+                                newAntNumber ++ ;
+                            }
+                            else{
+                                arr[0] = false ;
+                            }
+                            break ;
+                        case 4 :
+                            if (antLocation % grid ==  9 ){
+                                newAntLocation = antLocation + 1 ;
+                                organisms.push_back( new Ant( newAntNumber, location, 0, 'm' ) );
+                                locationList[newAntLocation] = 'o' ;
+                                findLocation = true ;
+                                newAntNumber ++ ;
+                            }
+                            else{
+                                arr[0] = false ;
+                            }
+                            break ;
+                        }
+                    if ( arr[0] == false && arr[1] == false && arr[2] == false && arr[3] == false ){
+                        findLocation = true ;
+                    }
+                }
+                setCount (0) ;
+            }
+            }
+            else {
+                bool arr[4] = {};
+                bool findLocation = false ;
+                while (findLocation == false){
+                    int rand = randLocation (4) ; /* 1 for up, 2 for down, 3 for left, 4 for right */
+                    switch(rand){
+                        case 1 :
+                            if (antLocation > grid -1 && locationList[antLocation-grid] == '-'){
+                                setLocation( antLocation - 20 ) ;
+                                int newCount = getCount() + 1 ;
+                                setCount ( newCount ) ;
+                                locationList[antLocation] = '-' ;
+                                locationList[antLocation-20] = 'o' ;
+                                findLocation = true ;
+                            }
+                            else{
+                                arr[0] = false ;
+                            }
+                            break ;
+                        case 2 :
+                            if (antLocation < gridSize - grid && ocationList[antLocation+grid] == '-'){
+                                setLocation( antLocation + grid ) ;
+                                int newCount = getCount() + 1 ;
+                                setCount ( newCount ) ;
+                                locationList[antLocation] = '-' ;
+                                locationList[antLocation+20] = 'o' ;
+                                findLocation = true ;
+                            }
+                            else{
+                                arr[1] = false ;
+                            }
+                            break ;
+                        case 3 :
+                            if (antLocation % grid != 0 && locationList[antLocation-1] == '-' ){
+                                setLocation( antLocation - 1 ) ;
+                                int newCount = getCount() + 1 ;
+                                setCount ( newCount ) ;
+                                locationList[antLocation] = '-' ;
+                                locationList[antLocation-1] = 'o' ;
+                                findLocation = true ;
+                            }
+                            else{
+                                arr[2] = false ;
+                            }
+                            break ;
+                        case 4 :
+                            if (antLocation % grid != 9 && locationList[antLocation+1] == '-' ){
+                                setLocation( antLocation + 1 ) ;
+                                int newCount = getCount() + 1 ;
+                                setCount ( newCount ) ;
+                                locationList[antLocation] = '-' ;
+                                locationList[antLocation+1] = 'X' ;
+                                findLocation = true ;
+                            }
+                            else {
+                                arr[3] = false ;
+                            }
+                            break ;
+                    }
+                    if ( arr[0] == false && arr[1] == false && arr[2] == false && arr[3] == false ){
+                        findLocation = true ;
+                    }
+                }
+                newCount = getCount() + 1;
+                setCount (newCount) ;
+            }
+    }
+}
+
+int randLocation( int randnum ) ;
+void inicializeWorld(char locationList[]) ;
+void printWorld()
+int main{
+    char locationList[gridSize] ;
+    for ( int i = 0 ; i < gridSize ; i ++){
+        locationList[i] = '-' ;
+    }
+    initializeWorld(locationlist) ;
+    printWorld() ;
+    cout << "Press enter to contiune" << endl ;
+    while (true) {
+        cin.get(input);
+        if (input == '\n') {
+            printWorld();
+            cout << "\n Press enter to contiune" << endl ;
+        }
+    }
+    return 0 ;
+}
+
+void initializeWorld( char locationList[] ){
+    /* generate random location for doodlebug */
+    srand(time(NULL));
+    bool assignLocation[gridSize] = {false} ;
+    for ( i = 1 ; i < doodleNumber + 1 ; i++ ){
+        int location = randLocation( gridSize );
+        while (assignLocation(location)){
+            location = randLocation();
+        }
+        organisms.push_back( new Doodlebug(i, location, 0, 'm', 0) );
+        assignedLocations[location] = true;
+        locationList[i] = 'X' ;
+    }
+    /* generate random location for ant */
+    srand(time(NULL));
+    bool assignLocation[gridSize] = {false} ;
+    for (int i = 1 ; i < antNumber + 1 ; i++ ){
+        int location = randLocation( gridSize );
+        while (assignLocation(location)){
+            location = randLocation();
+        }
+        organisms.push_back( new Doodlebug(i, location, 0, 'm') );
+        assignedLocations[location] = true;
+        locationList[i - 1] = 'o' ;
+    }
+}
+
+int randLocation( int randnum ) {
+    return rand() % randnum + 1;
+}
+
+void printWorld(){
+    for (int i = 0 ; i < gridSize ; i ++ ){
+        cout << locationList[i] << "/t" ;
+        if ( i % 20 == 0 ){
+            cout << "/n" ;
+        }
+    }
+}
