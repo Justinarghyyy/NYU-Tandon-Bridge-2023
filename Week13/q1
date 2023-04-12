@@ -16,6 +16,7 @@ class Organism
     int location;
     int count ;
     char status ;
+    char breed ;
 public:
     Organism() : ID(1), location(1), count(0), status('s') {}
     int getID() const { return ID; }
@@ -25,6 +26,8 @@ public:
     void setCount( int newCount ){ count = newCount ;} ;
     char getStatus() const { return status; }
     void setStatus(char newStatus) { status = newStatus; }
+    char getBreed() const { return breed; }
+    void setBreed(char newBreed) { breed = newBreed; }
     virtual void move() = 0 ;
 };
 
@@ -34,7 +37,7 @@ class Doodlebug : public Organism
 {
     int survive ;
 public:
-    Doodlebug(int id, int location, int count, char status, int survive ) : Organism(), survive(survive) {}
+    Doodlebug(int id, int location, int count, char status, char breed, int survive ) : Organism(), survive(survive) {}
     void move() ;
     void setLocation( int newLocation ) { Organism::setLocation(newLocation); }
     int getSurvive() const { return survive; }
@@ -52,7 +55,7 @@ void Doodlebug :: move()
                 setStatus ('d');
             }
             else {
-                if ( getCount() != 3 && getSurvive() == 8 ){
+                if ( getSurvive() == 8 ){
                     setSurvive(0) ;
                     bool findLocation = false ;
                     int newBugLocation ;
@@ -63,10 +66,11 @@ void Doodlebug :: move()
                             case 1 :
                                 if ( bugLocation > grid ){
                                     newBugLocation = bugLocation - grid ;
-                                    organisms.push_back( new Doodlebug( newDoodleNumber, newBugLocation, 0, 'm', 0) );
+                                    organisms.push_back( new Doodlebug( newDoodleNumber, newBugLocation, 0, 'm', 'X', 0) );
                                     locationList[newBugLocation] = 'X' ;
                                     findLocation = true ;
                                     newDoodleNumber ++ ;
+                                    setSurvive(0);
                                 }
                                 else{
                                     arr[0] = false ;
@@ -75,10 +79,11 @@ void Doodlebug :: move()
                             case 2 :
                                 if ( bugLocation < gridSize - grid ){
                                     newBugLocation = bugLocation + grid ;
-                                    organisms.push_back( new Doodlebug( newDoodleNumber, newBugLocation, 0, 'm', 0) );
+                                    organisms.push_back( new Doodlebug( newDoodleNumber, newBugLocation, 0, 'm', 'X', 0) );
                                     locationList[newBugLocation] = 'X' ;
                                     findLocation = true ;
                                     newDoodleNumber ++ ;
+                                    setSurvive(0);
                                 }
                                 else{
                                     arr[1] = false ;
@@ -87,10 +92,11 @@ void Doodlebug :: move()
                             case 3 :
                                 if (bugLocation % grid != 0 ){
                                     newBugLocation = bugLocation - 1 ;
-                                    organisms.push_back( new Doodlebug( newDoodleNumber, newBugLocation, 0, 'm', 0) );
+                                    organisms.push_back( new Doodlebug( newDoodleNumber, newBugLocation, 0, 'm', 'X', 0) );
                                     locationList[newBugLocation] = 'X' ;
                                     findLocation = true ;
                                     newDoodleNumber ++ ;
+                                    setSurvive(0);
                                 }
                                 else{
                                     arr[0] = false ;
@@ -99,10 +105,11 @@ void Doodlebug :: move()
                             case 4 :
                                 if (bugLocation % grid ==  9 ){
                                     newBugLocation = bugLocation + 1 ;
-                                    organisms.push_back( new Doodlebug( newDoodleNumber, newBugLocation, 0, 'm', 0) );
+                                    organisms.push_back( new Doodlebug( newDoodleNumber, newBugLocation, 0, 'm', 'X', 0) );
                                     locationList[newBugLocation] = 'X' ;
                                     findLocation = true ;
                                     newDoodleNumber ++ ;
+                                    setSurvive(0);
                                 }
                                 else{
                                     arr[0] = false ;
@@ -177,6 +184,9 @@ void Doodlebug :: move()
                 else if (locationList[bugLocation-1] != 'o' && locationList[bugLocation-grid] != 'o' && locationList[bugLocation+1] != 'o' && locationList[bugLocation+grid] != 'o'){
                     bool arr[4] = {};
                     bool findLocation = false ;
+                    int newCount = getCount();
+                    newCount ++ ;
+                    setCount(newCount) ;
                     while (findLocation == false){
                         int random = rand() % 4 + 1; /* 1 for up, 2 for down, 3 for left, 4 for right */
                         switch(random){
@@ -248,7 +258,7 @@ void Doodlebug :: move()
 class Ant : public Organism
 {
 public:
-    Ant(int id, int location, int count, char status ) : Organism() {}
+    Ant(int id, int location, int count, char status, char breed ) : Organism() {}
     void move() ;
     void setLocation( int newLocation ) { Organism::setLocation(newLocation); }
     void setStatus( char newStatus ) ;
@@ -271,10 +281,11 @@ void Ant ::move() {
                         case 1 :
                             if ( antLocation > grid && locationList[antLocation - grid] == '-'){
                                 newAntLocation = antLocation - grid ;
-                                organisms.push_back( new Ant( newAntNumber, newAntLocation, 0, 'm' ) );
+                                organisms.push_back( new Ant( newAntNumber, newAntLocation, 0, 'm', 'O') );
                                 locationList[newAntLocation] = 'o' ;
                                 findLocation = true ;
                                 newAntNumber ++ ;
+                                setCount(0);
                             }
                             else{
                                 arr[0] = false ;
@@ -283,10 +294,11 @@ void Ant ::move() {
                         case 2 :
                             if ( antLocation < gridSize - grid && locationList[antLocation + grid] == '-'){
                                 newAntLocation = antLocation + grid ;
-                                organisms.push_back( new Ant( newAntNumber, newAntLocation, 0, 'm' ) );
+                                organisms.push_back( new Ant( newAntNumber, newAntLocation, 0, 'm', 'O' ) );
                                 locationList[newAntLocation] = 'o' ;
                                 findLocation = true ;
                                 newAntNumber ++ ;
+                                setCount(0);
                             }
                             else{
                                 arr[1] = false ;
@@ -295,10 +307,11 @@ void Ant ::move() {
                         case 3 :
                             if (antLocation % grid != 0 && locationList[antLocation - 1] == '-'){
                                 newAntLocation = antLocation - 1 ;
-                                organisms.push_back( new Ant( newAntNumber, newAntLocation, 0, 'm' ) );
+                                organisms.push_back( new Ant( newAntNumber, newAntLocation, 0, 'm', 'O' ) );
                                 locationList[newAntLocation] = 'o' ;
                                 findLocation = true ;
                                 newAntNumber ++ ;
+                                setCount(0);
                             }
                             else{
                                 arr[0] = false ;
@@ -307,10 +320,11 @@ void Ant ::move() {
                         case 4 :
                             if (antLocation % grid ==  9 && locationList[antLocation + 1] == '-'){
                                 newAntLocation = antLocation + 1 ;
-                                organisms.push_back( new Ant( newAntNumber, newAntLocation, 0, 'm' ) );
+                                organisms.push_back( new Ant( newAntNumber, newAntLocation, 0, 'm', 'O' ) );
                                 locationList[newAntLocation] = 'o' ;
                                 findLocation = true ;
                                 newAntNumber ++ ;
+                                setCount(0);
                             }
                             else{
                                 arr[0] = false ;
@@ -433,7 +447,7 @@ void initializeWorld(){
         while ( findLocation == false ){
             int bugLocation = rand() % gridSize + 1;
             if (locationList[bugLocation] == '-'){
-                organisms.push_back( new Doodlebug(i, bugLocation, 0, 'm', 0) );
+                organisms.push_back( new Doodlebug(i, bugLocation, 0, 'm', 'X', 0) );
                 findLocation = true;
                 locationList[bugLocation] = 'X' ;
             }
@@ -447,7 +461,7 @@ void initializeWorld(){
         while ( findLocation == false ){
             int antLocation = rand() % gridSize + 1;
             if (locationList[antLocation] == '-'){
-                organisms.push_back( new Ant(i, antLocation, 0, 'm' ) );
+                organisms.push_back( new Ant(i, antLocation, 0, 'm', 'o' ) );
                 findLocation = true;
                 locationList[antLocation] = 'o' ;
             }
