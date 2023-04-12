@@ -45,7 +45,7 @@ public:
 void Doodlebug :: move()
 {
     int newDoodleNumber = doodleNumber ;
-    for (int i = 0 ; i < newDoodleNumber ; i++){
+    
         int bugLocation = getLocation() ;
         if (getStatus() != 'd') {   /* 'd' for dead */
             if (getCount() == 3 ){
@@ -243,7 +243,7 @@ void Doodlebug :: move()
             }   
         }
     }
-}
+
 
 class Ant : public Organism
 {
@@ -260,7 +260,7 @@ void Ant ::move() {
     int newAntNumber = antNumber ;
     int newAntLocation ;
     bool findLocation ;
-    for (int i = 0 ; i < newAntNumber ; i++){
+
         int antLocation = getLocation() ;
         if (getStatus() != 'd') {   /* 'd' for dead */
             if (getCount() == 3 ){
@@ -391,7 +391,7 @@ void Ant ::move() {
                 setCount (newCount) ;
             }
     }
-}
+
 
 int randLocation( int randnum ) ;
 void initializeWorld() ;
@@ -408,7 +408,16 @@ int main() {
     cout << "Press enter to contiune" << endl ;
     while (true) {
         cin.get();
-        move() ;
+        for (int i = 0; i < organisms.size(); i++) {
+            Doodlebug* db = dynamic_cast<Doodlebug*>(organisms[i]);
+            if (db != nullptr) {
+                db->move();
+            }
+            Ant* at = dynamic_cast<Ant*>(organisms[i]);
+            if (at != nullptr) {
+                at->move();
+            }
+        }
         printWorld();
         cout << "\n Press enter to contiune" << endl ;
         
