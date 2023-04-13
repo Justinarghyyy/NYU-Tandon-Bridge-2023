@@ -18,7 +18,12 @@ class Organism
     int count ;
     char status ;
 public:
-    Organism() : ID(0), location(0), count(0), status('s') {}
+    Organism(int id, int newLocation, int newCount, char newStatus) {
+        ID = id ;
+        location = newLocation ;
+        count = newCount ;
+        status = newStatus ;
+    }
     int getID() const { return ID; }
     int getLocation() const { return location; }
     void setLocation( int newLocation ){ location = newLocation; } ;
@@ -57,23 +62,18 @@ void Organism :: adjecentCell( int aLocation )
     else {
         adjacent[3] = locationList[ aLocation + 1 ]  ;
     }
-    cout << adjacent[0] <<adjacent[1]<<adjacent[2]<< adjacent[3] << endl;
 }
 int Organism :: newSpace(int aLocation, int space, char ocupant )
 {
     int i = 0 ;
-    cout << aLocation << ocupant << endl ;
     int newLocation, random ;
     random= rand() % space + 1 ;
-    cout << random ;
     while ( random > 0 && i < 4){
         if (adjacent[i] == ocupant){
             random -- ;
         }
         i ++ ;
     }
-    cout <<"i"<<i<< endl ;
-    cout << "aLocation" << aLocation << endl ;
     switch (i){
         case 1:
             newLocation =  aLocation - grid ;
@@ -88,7 +88,6 @@ int Organism :: newSpace(int aLocation, int space, char ocupant )
             newLocation =  aLocation + 1 ;
             break ;
     }
-    cout << "newLocation"<< newLocation << endl ;
     return newLocation ;
 }
 
@@ -96,14 +95,15 @@ class Doodlebug : public Organism
 {
     int survive ;
 public:
-    Doodlebug(int id, int location, int count, char status, int survive)
-    : Organism(), survive(survive) {}
+    Doodlebug(int id, int newLocation, int newCount, char newStatus, int newSurvive)
+    : Organism(id, newLocation, newCount, newStatus), survive(newSurvive) {}
     void move() ;
     int getSurvive() const { return survive; }
     void setSurvive ( int newSurvive ) { survive = newSurvive; }
     Doodlebug& operator = (const Organism & org) ;
 };
-vector <Doodlebug*> db ;
+
+vector <Doodlebug> db ;
 
 void Doodlebug :: move()
 {
@@ -123,17 +123,13 @@ void Doodlebug :: move()
                 }
             }
             if ( space != 0 ){ // there is an ant
-                cout << "here1"<< endl;
                 newLocation = newSpace ( aLocation, space, 'o' ) ;
-                cout << newLocation ;
-                cout << "here11"<< endl;
                 locationList[newLocation] = 'X' ;
                 locationList[aLocation] = '-' ;
                 setLocation(newLocation) ;
                 setSurvive(0) ;
             }
             else{  // no ant
-                cout << "here2"<< endl;
                 space = 0 ;
                 for ( int n = 0 ; n < 4 ; n ++){
                     if ( adjacent[n] == '-' ){
@@ -141,10 +137,7 @@ void Doodlebug :: move()
                     }
                 }
                 if ( space != 0 ){
-                    cout << "here3"<< endl;
                     newLocation = newSpace ( aLocation, space, '-' ) ;
-                    cout << newLocation ;
-                    cout << "here33"<< endl;
                     locationList[newLocation] = 'X' ;
                     locationList[aLocation] = '-' ;
                     setLocation(newLocation) ;
@@ -155,7 +148,7 @@ void Doodlebug :: move()
             int newCount = getCount() + 1 ;
             setCount(newCount) ;
             // if the bug can breed
-            if ( getCount() == 8 ){
+            if ( getCount() >= 8 ){
                 newDoodleNumber = db.size() + 1;
                 for ( int n = 0 ; n < 4 ; n ++){
                     if ( adjacent[n] == '-' ){
@@ -164,10 +157,10 @@ void Doodlebug :: move()
                 }
                 if ( space != 0 ){
                     newLocation = newSpace ( aLocation, space, '-' ) ;
-                    db.push_back( new Doodlebug( newDoodleNumber, newLocation, 0, 'm', 0) );
+                    db.push_back( Doodlebug( newDoodleNumber, newLocation, 0, 'm', 0) );
                     locationList[newLocation] = 'X' ;
+                    setCount(0) ;
                 }
-                setCount(0) ;
             }
         }
     }
@@ -176,12 +169,13 @@ void Doodlebug :: move()
 class Ant : public Organism
 {
 public:
-    Ant(int id, int location, int count, char status) : Organism() {}
+    Ant(int id, int newLocation, int newCount, char newStatus)
+    : Organism(id, newLocation, newCount, newStatus) {}
     void move() ;
     Ant& operator = (const Organism & org) ;   
 };
 
-vector <Ant*> at ;
+vector <Ant> at ;
 
 void Ant ::move()
 {
@@ -208,20 +202,20 @@ void Ant ::move()
             int newCount = getCount() + 1 ;
             setCount(newCount) ;
         }
-        if ( getCount() == 3 ){
-                newAntNumber = at.size() + 1;
-                int space = 0 ;
-                for ( int n = 0 ; n < 4 ; n ++){
-                    if ( adjacent[n] == '-' ){
-                        space ++ ;
-                    }
+        if ( getCount() >= 3 ){
+            newAntNumber = at.size() + 1;
+            int space = 0 ;
+            for ( int n = 0 ; n < 4 ; n ++){
+                if ( adjacent[n] == '-' ){
+                    space ++ ;
                 }
-                if ( space != 0 ){
-                    newLocation = newSpace ( aLocation, space, '-' ) ;
-                    at.push_back( new Ant( newAntNumber, newLocation, 0, 'm') );
-                    locationList[newLocation] = 'o' ;
-                }
+            }
+            if ( space != 0 ){
+                newLocation = newSpace ( aLocation, space, '-' ) ;
+                at.push_back(  Ant( newAntNumber, newLocation, 0, 'm') );
+                locationList[newLocation] = 'o' ;
                 setCount(0) ;
+            }
         }
     }
 }
@@ -236,18 +230,20 @@ int main() {
     }
     initializeWorld() ;
     printWorld() ;
-    cout << db[2]->getID()<<db[2]->getLocation()<<db[2]->getCount()<<db[2]->getStatus()<< endl;
     cout << "Press enter to contiune" << endl ;
+    int time = 1 ;
     while (true) {
         cin.ignore();
         for ( i = 0 ; i < db.size() ; i ++){
-            db[i]->move() ;
+            db[i].move() ;
         }
         for ( i = 0 ; i < at.size() ; i ++){
-            at[i]->move() ;
+            at[i].move() ;
         }
+        cout << time <<endl ;
         printWorld() ;
         cout << "\n Press enter to contiune" << endl ;     
+        time ++ ;
     }
     return 0 ;
 }
@@ -260,7 +256,7 @@ void initializeWorld(){
         while ( findLocation == false ){
             int bugLocation = rand() % gridSize + 1;
             if (locationList[bugLocation] == '-'){
-                db.push_back( new Doodlebug(i, bugLocation, 0, 'm', 0) );
+                db.push_back( Doodlebug(i, bugLocation, 0, 'm', 0) );
                 findLocation = true;
                 locationList[bugLocation] = 'X' ;
             }
@@ -273,9 +269,8 @@ void initializeWorld(){
     for ( int i = 1 ; i < antNumber + 1 ; i++ ){
         while ( findLocation == false ){
             int antLocation = rand() % gridSize + 1;
-            cout << antLocation << endl ;
             if (locationList[antLocation] == '-'){
-                at.push_back( new Ant(i, antLocation, 0, 'm') );
+                at.push_back( Ant(i, antLocation, 0, 'm') );
                 findLocation = true;
                 locationList[antLocation] = 'o' ;
             }
