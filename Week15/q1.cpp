@@ -35,13 +35,12 @@ void splitBill ( vector <Bill> & vec , int numberPeople ){
         totalAmount += b.amountPaid ;
     }
     average = totalAmount / numberPeople ;
-    for ( Bill b : vec ){
+    for ( Bill& b : vec ){
         b.amountOwed = average - b.amountPaid ;
     }
-    cout << "here" << endl ;
+    
     for ( int i = 0 ; i < numberPeople ; i ++ ){
-        cout << "here" << endl ;
-        if ( vec[i].amountOwed < 0 ){
+        if ( vec[i].amountOwed <= 0 ){
             cout << vec[i].name << " you don't need to do anything. " << endl ;
         }
         else {
@@ -49,15 +48,18 @@ void splitBill ( vector <Bill> & vec , int numberPeople ){
                 while ( vec[i].amountOwed != 0 ){
                     if (vec[n].amountOwed < 0 ){
                         if ( -vec[n].amountOwed > vec[i].amountOwed ){
-                            cout << vec[i].name << " you need to give " << vec[n].name << vec[i].amountOwed << endl ;
+                            cout << vec[i].name << " you need to give " << vec[n].name << " $" << vec[i].amountOwed << endl ;
                             vec[n].amountOwed += vec[i].amountOwed ;
                             vec[i].amountOwed = 0 ;
                         }
                         else if ( -vec[n].amountOwed < vec[i].amountOwed ){
-                            cout << vec[i].name << " you need to give " << vec[n].name << vec[i].amountOwed << endl ;
+                            cout << vec[i].name << " you need to give " << vec[n].name << " $" << -vec[n].amountOwed << endl ;
                             vec[i].amountOwed += vec[n].amountOwed ;
                             vec[n].amountOwed = 0 ;
                         }
+                    }
+                    else {
+                        break ;
                     }
                 }
             }
@@ -65,20 +67,24 @@ void splitBill ( vector <Bill> & vec , int numberPeople ){
                 while ( vec[i].amountOwed != 0 ){
                     if (vec[n].amountOwed < 0 ){
                         if ( -vec[n].amountOwed > vec[i].amountOwed ){
-                            cout << vec[i].name << " you need to give " << vec[n].name << vec[i].amountOwed << endl ;
+                            cout << vec[i].name << " you need to give " << vec[n].name << " $" << vec[i].amountOwed << endl ;
                             vec[n].amountOwed += vec[i].amountOwed ;
                             vec[i].amountOwed = 0 ;
                         }
                         else if ( -vec[n].amountOwed < vec[i].amountOwed ){
-                            cout << vec[i].name << " you need to give " << vec[n].name << vec[i].amountOwed << endl ;
+                            cout << vec[i].name << " you need to give " << vec[n].name << " $" << -vec[n].amountOwed << endl ;
                             vec[i].amountOwed += vec[n].amountOwed ;
                             vec[n].amountOwed = 0 ;
                         }
+                    }
+                    else {
+                        break ;
                     }
                 }
             }
         }
     }
+    cout << "In the end, you should all spend around $" << average << endl ;
 
 }
 
@@ -89,20 +95,13 @@ int main(){
     Bill temp ;
     int numberPeople = 0 ;
     while ( inFile >> temp.amountPaid ){
-        cout << temp.amountPaid << endl ;
         inFile.ignore( 9999, '\t' ) ;
         getline( inFile, temp.name ) ;
-        cout << temp.name << endl ;
         vec.push_back( temp ) ;
         numberPeople ++ ;
     } 
-    for (int i = 0 ; i < numberPeople; i++){
-        if (vec[i].amountPaid > 0){
-            cout << vec[i].name << endl;
-    }
-    }
+
     splitBill ( vec , numberPeople ) ;
 
-    
     return 0 ;
 }
